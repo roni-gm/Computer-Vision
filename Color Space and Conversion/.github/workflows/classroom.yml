@@ -1,0 +1,30 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test P2
+      id: test-p2
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test P2
+        setup-command: sudo -H pip3 install pytest opencv-python && wget https://gist.githubusercontent.com/ekorudiawan/57172706852b28390c7d32c0d508e376/raw/4f6678092b6f7f83daf09a125397e2fa3a0ca512/exercise_2_test.py
+        command: pytest
+        timeout: 10
+        max-score: 100
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-P2_RESULTS: "${{steps.test-p2.outputs.result}}"
+      with:
+        runners: test-p2
